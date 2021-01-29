@@ -29,7 +29,7 @@ describe("Room repository", () => {
   });
 
   describe("Get a room", () => {
-    test("Should  return null", async () => {
+    test("Should return null", async () => {
       const room = await repository.get({ id: 20 });
       expect(room).toBe(null);
     });
@@ -39,17 +39,21 @@ describe("Room repository", () => {
       const savedRoom = await repository.get({ id: room.id });
       expect(savedRoom).toBeDefined();
       expect(savedRoom.owner).toBe("abc");
-    }); 
+    });
+  });
+
+  describe("Partners", () => {
+    test("Should allow partner to join", async () => {
+      const room = await repository.create({ userId: "abc" });
+      const result = await repository.join({ id: room.id, partnerId: "anyid" });
+      expect(result).toBe(true);
+    });
+
+    test("Should not allow partner to join twice", async () => {
+        const room = await repository.create({ userId: "abc" });
+        await repository.join({ id: room.id, partnerId: "anyid" });
+        expect(async () => { await repository.join({ id: room.id, partnerId: "anyid" }) }).rejects.toThrow();
+      });
+
   });
 });
-
-/*
-
-
-
-
-
-
-
-
-*/

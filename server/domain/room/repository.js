@@ -1,20 +1,32 @@
 const Entity = require("./entity");
 
-
 module.exports = ({ roomDAO }) => {
   return {
     create: async ({ userId }) => {
-      const newRoom = Entity({ owner: userId, id: Math.random() });
-      const savedRoom = await roomDAO.create(newRoom);
-      return savedRoom;
+      try {
+        const newRoom = Entity({ owner: userId, id: Math.random() });
+        const savedRoom = await roomDAO.create(newRoom);
+        return savedRoom;
+      } catch (e) {
+        throw e;
+      }
     },
 
     join: async ({ id, partnerId }) => {
-      const room = this.get({ id });
+      try {
+        const room = await roomDAO.findOne({ id });
+        if (room.partners.indexOf(partnerId) > 0) {
+          throw new Error("User is already in room");
+        }
+        room.partners.push(partnerId);
+        await room.save();
+        return true;
+      } catch (e) {
+        throw e;
+      }
     },
 
     get: async ({ id }) => {
-
       const room = await roomDAO.findOne({ id });
       return room;
     },
@@ -28,8 +40,8 @@ module.exports = ({ roomDAO }) => {
       }
     },
 
-    roomsCount: () => {
-      return rooms.length;
+    count: async () => {
+      return await roomDAO.countDocuments();
     },
   };
 };
