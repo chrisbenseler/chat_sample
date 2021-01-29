@@ -1,10 +1,13 @@
+const { v4: uuidv4 } = require('uuid');
+uuidv4();
+
 const Entity = require("./entity");
 
 module.exports = ({ roomDAO }) => {
   return {
     create: async ({ userId }) => {
       try {
-        const newRoom = Entity({ owner: userId, id: Math.random() });
+        const newRoom = Entity({ owner: userId, id: uuidv4() });
         const savedRoom = await roomDAO.create(newRoom);
         return savedRoom;
       } catch (e) {
