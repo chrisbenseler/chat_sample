@@ -1,24 +1,35 @@
 const Entity = require("./entity");
 
-let rooms = [];
 
-module.exports = () => {
+module.exports = ({ roomDAO }) => {
   return {
     create: async ({ userId }) => {
-      const newRoom = Entity({ owner: userId });
-      rooms = [...rooms, newRoom];
-
-      return newRoom;
+      const newRoom = Entity({ owner: userId, id: Math.random() });
+      const savedRoom = await roomDAO.create(newRoom);
+      return savedRoom;
     },
 
-    join: async ({ partnerId }) => {},
+    join: async ({ id, partnerId }) => {
+      const room = this.get({ id });
+    },
 
-    rooms: () => {
-        return rooms;
+    get: async ({ id }) => {
+
+      const room = await roomDAO.findOne({ id });
+      return room;
+    },
+
+    rooms: async () => {
+      try {
+        return await roomDAO.find();
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
     },
 
     roomsCount: () => {
-        return rooms.length;
-    }
+      return rooms.length;
+    },
   };
 };
